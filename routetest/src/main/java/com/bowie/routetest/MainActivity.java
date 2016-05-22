@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,
         getLocation();
         location();
         mapMaker();
+
     }
 
     private void getLocation() {
