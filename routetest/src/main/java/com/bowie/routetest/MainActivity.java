@@ -1,9 +1,18 @@
 package com.bowie.routetest;
 
+import android.app.Activity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -13,11 +22,15 @@ import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
+import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
-import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
+import com.bowie.routetest.db.StationBean;
 
-public class MainActivity extends AppCompatActivity implements LocationSource,
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends Activity implements LocationSource,
         AMapLocationListener, CompoundButton.OnCheckedChangeListener {
 
     MapView mMapView = null;
@@ -26,26 +39,28 @@ public class MainActivity extends AppCompatActivity implements LocationSource,
     //声明AMapLocationClient类对象
     public AMapLocationClient mLocationClient = null;
     private OnLocationChangedListener mListener;
+    private ListView lv;
+    private AdapterStation adapter;
+    private ArrayList<MarkerOptions> listMarkers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        lv = (ListView)findViewById(R.id.lv_station);
         //获取地图控件引用
         mMapView = (MapView) findViewById(R.id.map);
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，实现地图生命周期管理
         mMapView.onCreate(savedInstanceState);
         getLocation();
         location();
-        mapMaker();
-
     }
+
 
     private void getLocation() {
         mLocationClient = new AMapLocationClient(getApplicationContext());
         //设置定位回调监听
         mLocationClient.setLocationListener(this);
-
         mLocationOption = new AMapLocationClientOption();
         //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
@@ -73,15 +88,54 @@ public class MainActivity extends AppCompatActivity implements LocationSource,
         // 设置定位的类型为定位模式，参见类AMap。
         aMap.setMyLocationType(AMap.LOCATION_TYPE_MAP_FOLLOW);
         aMap.moveCamera(CameraUpdateFactory.zoomBy(3));
+    }
+
+    private void mapMaker(List<StationBean> list) {
+        aMap.clear(true);
+        listMarkers = new ArrayList<>();
+        for (int i = 0; i < list.size();i++){
+            View view = View.inflate(this,R.layout.item_marker, null);
+            TextView tv_marker = (TextView)view.findViewById(R.id.tv_marker);
+            tv_marker.setText(list.get(i).name);
+            Bitmap bitmap = convertViewToBitmap(view);
+            LatLng latlng = new LatLng(list.get(i).lat, list.get(i).lng);
+            MarkerOptions makeerOption = new MarkerOptions();
+            makeerOption.position(latlng);
+            makeerOption.title(list.get(i).name);
+            makeerOption.snippet(list.get(i).adr);
+            makeerOption.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
+            listMarkers.add(makeerOption);
+        }
+        aMap.addMarkers(listMarkers, true);
+    }
+
+    //view 转bitmap
+    public static Bitmap convertViewToBitmap(View view) {
+        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        view.buildDrawingCache();
+        Bitmap bitmap = view.getDrawingCache();
+        return bitmap;
+    }
+
+    private void newc(){
 
     }
 
-    private void mapMaker() {
-        LatLng latlng = new LatLng(20.0007605953, 110.2993034288);
-        MarkerOptions makeerOption = new MarkerOptions();
-        makeerOption.position(latlng);
-        aMap.addMarker(makeerOption);
-        aMap.moveCamera(CameraUpdateFactory.zoomBy(3));
+
+
+    protected Bitmap getMyBitmap(String pm_val) {
+        Bitmap bitmap = BitmapDescriptorFactory.fromResource(
+                R.mipmap.redpoint).getBitmap();
+        bitmap = Bitmap.createBitmap(bitmap, 0 ,0, bitmap.getWidth(),
+                bitmap.getHeight());
+        Canvas canvas = new Canvas(bitmap);
+        TextPaint textPaint = new TextPaint();
+        textPaint.setAntiAlias(true);
+        textPaint.setTextSize(15f);
+        textPaint.setColor(getResources().getColor(R.color.colorPrimary));
+        canvas.drawText(pm_val, 1, 35 ,textPaint);// 设置bitmap上面的文字位置
+        return bitmap;
     }
 
     @Override
@@ -132,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,
                 amapLocation.getAdCode();//地区编码
                 Log.e("location", amapLocation.toStr());
                 mListener.onLocationChanged(amapLocation);
-                aMap.moveCamera(CameraUpdateFactory.zoomBy(9));
+                aMap.moveCamera(CameraUpdateFactory.zoomBy(6));
             } else {
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
                 Log.e("AmapError", "location Error, ErrCode:"
@@ -155,5 +209,23 @@ public class MainActivity extends AppCompatActivity implements LocationSource,
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
+    }
+
+    public void actionSearch(View view){
+        DialogSearch dialogSearch = new DialogSearch(this, onSearchListener);
+        dialogSearch.open();
+    }
+
+    DialogSearch.OnSearchListener onSearchListener = new DialogSearch.OnSearchListener() {
+        @Override
+        public void onRest(List<StationBean> stations) {
+            setListView(stations);
+            mapMaker(stations);
+        }
+    };
+
+    private void setListView(List<StationBean> stations){
+        adapter = new AdapterStation(this, stations);
+        lv.setAdapter(adapter);
     }
 }
