@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RouteTest</string>
+    <string name="title_activity_lanucher">lanucherActivity</string>
 </resources>

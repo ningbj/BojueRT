@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        >
+        <ImageView
+            android:id="@+id/img_back"
+            android:layout_width="60dp"
+            android:layout_height="48dp"
+            android:src="@mipmap/ic_back_white"
+            android:layout_gravity="center_vertical"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:text="搜索"
+            android:textSize="16sp"
+            android:layout_gravity="center"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="选择运营商"
+            android:id="@+id/textView"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/rg"
+            >
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="电信"
+                android:textSize="16sp"
+                android:id="@+id/radio_CMCC"
+                android:checked="true"
+                />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="移动"
+                android:textSize="16sp"
+                android:id="@+id/radio_CTCC"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="联通"
+                android:textSize="16sp"
+                android:id="@+id/radio_CUCC"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                />
+        </RadioGroup>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:id="@+id/et_station_code_lac"
+            android:textColor="@color/colorPrimaryDark"
+            android:hint="请输入基站代码LAC"
+            android:textSize="16sp"
+            />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:id="@+id/et_station_code_ci"
+            android:textColor="@color/colorPrimaryDark"
+            android:hint="请输入基站代码CI"
+            android:textSize="16sp"
+            />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:id="@+id/et_station_name"
+            android:textColor="@color/colorPrimaryDark"
+            android:hint="请输入基站名称"
+            android:textSize="16sp"
+            />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:id="@+id/et_station_adr"
+            android:textColor="@color/colorPrimaryDark"
+            android:hint="请输入基站位置"
+            android:textSize="16sp"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="60dp"
+            android:text="搜索"
+            android:id="@+id/btn_search"/>
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
