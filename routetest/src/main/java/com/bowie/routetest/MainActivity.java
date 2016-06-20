@@ -135,6 +135,8 @@ public class MainActivity extends Activity implements LocationSource,
         textPaint.setTextSize(15f);
         textPaint.setColor(getResources().getColor(R.color.colorPrimary));
         canvas.drawText(pm_val, 1, 35 ,textPaint);// 设置bitmap上面的文字位置
+
+
         return bitmap;
     }
 
