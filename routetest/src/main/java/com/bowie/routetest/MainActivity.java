@@ -115,6 +115,8 @@ public class MainActivity extends Activity implements LocationSource,
         view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
         view.buildDrawingCache();
         Bitmap bitmap = view.getDrawingCache();
+
+
         return bitmap;
     }
 
