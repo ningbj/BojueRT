@@ -5,16 +5,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bowie.routetest.lanucherActivity">
+    tools:context="com.bowie.routetest.lanucherActivity"
+    android:orientation="vertical"
+    >
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:textColor="@color/colorPrimary"
         android:textSize="30sp"
         android:text="欢迎使用路测工具"
         android:gravity="center"
+        android:layout_marginTop="16dp"
         />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:id="@+id/et_name"
+            android:hint="请输入账号"
+            android:inputType="text"
+            />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:id="@+id/et_pwd"
+            android:hint="请输入密码"
+            android:inputType="textPassword"
+            android:layout_marginTop="8dp"
+            />
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="登录"
+            android:layout_marginTop="16dp"
+            android:onClick="actionLogin"
+            />
+    </LinearLayout>
 
 
 </LinearLayout>

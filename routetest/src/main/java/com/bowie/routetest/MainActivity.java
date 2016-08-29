@@ -19,11 +19,13 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.bowie.routetest.db.StationBean;
 
@@ -42,6 +44,7 @@ public class MainActivity extends Activity implements LocationSource,
     private ListView lv;
     private AdapterStation adapter;
     private ArrayList<MarkerOptions> listMarkers;
+    private ArrayList<Marker> listMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +109,7 @@ public class MainActivity extends Activity implements LocationSource,
             makeerOption.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
             listMarkers.add(makeerOption);
         }
-        aMap.addMarkers(listMarkers, true);
+        listMarker = aMap.addMarkers(listMarkers, true);
     }
 
     //view 转bitmap
@@ -229,7 +232,31 @@ public class MainActivity extends Activity implements LocationSource,
     };
 
     private void setListView(List<StationBean> stations){
-        adapter = new AdapterStation(this, stations);
+        adapter = new AdapterStation(this, stations, onClickListener);
         lv.setAdapter(adapter);
     }
+
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int position = (int) v.getTag(R.id.tag_position);
+            switch (v.getId()){
+                case R.id.tv_item_station_show:
+                    if(listMarker.get(position).isVisible()){
+                        listMarker.get(position).setVisible(false);
+                        adapter.setVisible(position,false);
+                    }else{
+                        listMarker.get(position).setVisible(true);
+                        adapter.setVisible(position,true);
+                    }
+                    break;
+                case R.id.lt_station:
+                    LatLng latLng = listMarker.get(position).getPosition();
+                    aMap.moveCamera(CameraUpdateFactory.changeLatLng(latLng));
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 }
