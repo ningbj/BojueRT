@@ -92,8 +92,12 @@ public class DialogSearch {
                 codeLAC = et_station_code_lac.getText().toString();
                 codeCI = et_station_code_ci.getText().toString();
                 List<StationBean> list = AssetsDatabaseManager.selectByCode(type, codeLAC, codeCI);
-                onSearchListener.onRest(list);
-                modelDialog.dismiss();
+                if(list != null){
+                    onSearchListener.onRest(list);
+                    modelDialog.dismiss();
+                }else{
+                    Toast.makeText(context, "查找不到此基站信息", Toast.LENGTH_SHORT).show();
+                }
             }else{
                 Toast.makeText(context, "基站代码不能小于5位", Toast.LENGTH_SHORT).show();
             }
