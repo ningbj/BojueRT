@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -33,12 +34,14 @@ public class DialogSearch {
     RadioButton radio_CTCC, radio_CMCC, radio_CUCC;
     ImageView img_back;
     EditText et_station_name, et_station_code_lac, et_station_code_ci, et_station_adr;
-    Button btn_search;
+    Button btn_search_type, btn_search;
+    LinearLayout lt_exact, lt_fuzzy;
     private int type = 0;
     private String codeLAC = "";
     private String codeCI = "";
     private String name = "";
     private String adr = "";
+    private boolean isExactSearch = true;
 
     public DialogSearch(Context context, OnSearchListener onSearchListener){
         this.context = context;
@@ -61,11 +64,33 @@ public class DialogSearch {
         et_station_adr = (EditText)modelDialog.findViewById(R.id.et_station_adr);
         et_station_code_lac = (EditText)modelDialog.findViewById(R.id.et_station_code_lac);
         et_station_code_ci = (EditText)modelDialog.findViewById(R.id.et_station_code_ci);
+        lt_exact = (LinearLayout) modelDialog.findViewById(R.id.lt_exact);
+        lt_fuzzy = (LinearLayout) modelDialog.findViewById(R.id.lt_fuzzy);
         btn_search = (Button)modelDialog.findViewById(R.id.btn_search);
+        btn_search_type = (Button)modelDialog.findViewById(R.id.btn_search_type);
+        btn_search_type.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isExactSearch){
+                    btn_search_type.setText("切换精确查找");
+                    isExactSearch = false;
+                    lt_fuzzy.setVisibility(View.VISIBLE);
+                    lt_exact.setVisibility(View.GONE);
+                    btn_search.setText("模糊查询");
+                }else{
+                    btn_search_type.setText("切换模糊查找");
+                    isExactSearch = true;
+                    lt_fuzzy.setVisibility(View.GONE);
+                    lt_exact.setVisibility(View.VISIBLE);
+                    btn_search.setText("精确查询");
+                }
+            }
+        });
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                search();
+//                search();
+                actionSearch();
             }
         });
 
@@ -102,6 +127,55 @@ public class DialogSearch {
                 Toast.makeText(context, "基站代码不能小于5位", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void actionSearch(){
+        if(checkSearchCondition()){
+            List<StationBean> list;
+            if(isExactSearch){
+                list = AssetsDatabaseManager.selectByCode(type, codeLAC, codeCI);
+            }else{
+                list = AssetsDatabaseManager.selectByNameAdr(type, name, adr);
+            }
+            if(list != null){
+                onSearchListener.onRest(list);
+                modelDialog.dismiss();
+            }else{
+                Toast.makeText(context, "查找不到此基站信息", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * 检查查询条件
+     * */
+    private boolean checkSearchCondition(){
+        boolean isValidate = false;
+        name = et_station_name.getText().toString();
+        adr = et_station_adr.getText().toString();
+        codeLAC = et_station_code_lac.getText().toString();
+        codeCI = et_station_code_ci.getText().toString();
+        if(isExactSearch){
+            if(TextUtils.isEmpty(codeLAC) || TextUtils.isEmpty(codeCI)){
+                isValidate = false;
+                Toast.makeText(context,"请完善查询条件",Toast.LENGTH_SHORT).show();
+            }else{
+                if(codeLAC.length() == 5 && codeCI.length() == 5){
+                    isValidate = true;
+                }else{
+                    Toast.makeText(context,"基站必须均为5位数",Toast.LENGTH_SHORT).show();
+                    isValidate = false;
+                }
+            }
+        }else{
+            if(TextUtils.isEmpty(name) && TextUtils.isEmpty(adr)){
+                isValidate = false;
+                Toast.makeText(context,"请完善查询条件",Toast.LENGTH_SHORT).show();
+            }else {
+                isValidate = true;
+            }
+        }
+        return  isValidate;
     }
 
     RadioGroup.OnCheckedChangeListener onCheckedChangeListener = new RadioGroup.OnCheckedChangeListener() {

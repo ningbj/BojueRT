@@ -197,7 +197,46 @@ public class AssetsDatabaseManager {
         if(TextUtils.isEmpty(ci)){
             cursor = db.rawQuery("select * from " + station + " where LAC = ? LIMIT 10",new String[]{lac});
         }else{
-            cursor = db.rawQuery("select * from " + station + " where LAC = ? AND CI = ? LIMIT 10",new String[]{lac, ci});
+            cursor = db.rawQuery("select * from " + station + " where LAC = ? AND CID = ? LIMIT 10",new String[]{lac, ci});
+        }
+        if(cursor.getCount() > 0){
+            ArrayList<StationBean> stations = new ArrayList<>();
+            cursor.moveToFirst();
+            StationBean stationBean = new StationBean();
+            stationBean.lac = cursor.getInt(0);
+            stationBean.ci = cursor.getInt(1);
+            stationBean.name= cursor.getString(2);
+            stationBean.adr = cursor.getString(3);
+            stationBean.lng = cursor.getFloat(4);
+            stationBean.lat = cursor.getFloat(5);
+            stations.add(stationBean);
+            while (cursor.moveToNext()){
+                stationBean = new StationBean();
+                stationBean.lac = cursor.getInt(0);
+                stationBean.ci = cursor.getInt(1);
+                stationBean.name= cursor.getString(2);
+                stationBean.adr = cursor.getString(3);
+                stationBean.lng = cursor.getFloat(4);
+                stationBean.lat = cursor.getFloat(5);
+                stations.add(stationBean);
+            }
+            return stations;
+        }else{
+            return null;
+        }
+
+    }
+
+    static public List<StationBean> selectByNameAdr(int type, String name, String adr){
+        String station = getStation(type);
+        SQLiteDatabase db = getManager().getDatabase("route.db");
+        Cursor cursor;
+        if(TextUtils.isEmpty(name)){
+            cursor = db.rawQuery("select * from " + station + " where NAME LIKE '%"+ name +"%'LIMIT 10",new String[]{name});
+        }else if(TextUtils.isEmpty(adr)){
+            cursor = db.rawQuery("select * from " + station + " where ADR = ? LIMIT 10",new String[]{adr});
+        }else{
+            cursor = db.rawQuery("select * from " + station + " where NAME = ? AND ADR = ? LIMIT 10",new String[]{name, adr});
         }
         if(cursor.getCount() > 0){
             ArrayList<StationBean> stations = new ArrayList<>();
