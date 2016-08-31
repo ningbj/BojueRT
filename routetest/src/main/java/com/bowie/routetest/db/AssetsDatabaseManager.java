@@ -232,11 +232,11 @@ public class AssetsDatabaseManager {
         SQLiteDatabase db = getManager().getDatabase("route.db");
         Cursor cursor;
         if(TextUtils.isEmpty(name)){
-            cursor = db.rawQuery("select * from " + station + " where NAME LIKE '%"+ name +"%'LIMIT 10",new String[]{name});
+            cursor = db.rawQuery("select * from " + station + " where ADR LIKE ? LIMIT 10",new String[]{"%" + adr + "%"});
         }else if(TextUtils.isEmpty(adr)){
-            cursor = db.rawQuery("select * from " + station + " where ADR = ? LIMIT 10",new String[]{adr});
+            cursor = db.rawQuery("select * from " + station + " where NAME LIKE ? LIMIT 10",new String[]{"%" + name + "%"});
         }else{
-            cursor = db.rawQuery("select * from " + station + " where NAME = ? AND ADR = ? LIMIT 10",new String[]{name, adr});
+            cursor = db.rawQuery("select * from " + station + " where NAME LIKE ? AND ADR LIKE ? LIMIT 10",new String[]{"%" + name + "%", "%" + adr + "%"});
         }
         if(cursor.getCount() > 0){
             ArrayList<StationBean> stations = new ArrayList<>();
