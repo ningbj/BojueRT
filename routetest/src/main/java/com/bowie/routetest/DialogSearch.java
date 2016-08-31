@@ -138,6 +138,11 @@ public class DialogSearch {
                 list = AssetsDatabaseManager.selectByNameAdr(type, name, adr);
             }
             if(list != null){
+                if(list.size() == 10){
+                    Toast.makeText(context, "条件过于模糊，仅显示前10个结果", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(context, "符合条件的为" + list.size() + "个基站", Toast.LENGTH_SHORT).show();
+                }
                 onSearchListener.onRest(list);
                 modelDialog.dismiss();
             }else{
