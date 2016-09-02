@@ -36,6 +36,11 @@ public class AdapterStation extends BaseAdapter {
         }
     }
 
+    public void clear(){
+        mList.clear();
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         // TODO Auto-generated method stub

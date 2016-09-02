@@ -19,6 +19,7 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
@@ -42,15 +43,19 @@ public class MainActivity extends Activity implements LocationSource,
     public AMapLocationClient mLocationClient = null;
     private OnLocationChangedListener mListener;
     private ListView lv;
+    private TextView tv_distance;
     private AdapterStation adapter;
     private ArrayList<MarkerOptions> listMarkers;
     private ArrayList<Marker> listMarker;
+    private LatLng startPoint, endPoint;
+    private String startPointName, endPointName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         lv = (ListView)findViewById(R.id.lv_station);
+        tv_distance = (TextView)findViewById(R.id.tv_distance);
         //获取地图控件引用
         mMapView = (MapView) findViewById(R.id.map);
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，实现地图生命周期管理
@@ -110,6 +115,7 @@ public class MainActivity extends Activity implements LocationSource,
             listMarkers.add(makeerOption);
         }
         listMarker = aMap.addMarkers(listMarkers, true);
+        aMap.setOnMarkerClickListener(onMarkerClickListener);
     }
 
     //view 转bitmap
@@ -124,7 +130,7 @@ public class MainActivity extends Activity implements LocationSource,
     }
 
     private void newc(){
-
+        aMap.clear(true);
     }
 
 
@@ -223,6 +229,11 @@ public class MainActivity extends Activity implements LocationSource,
         dialogSearch.open();
     }
 
+    public void actionClear(View view){
+        aMap.clear(true);
+        adapter.clear();
+    }
+
     DialogSearch.OnSearchListener onSearchListener = new DialogSearch.OnSearchListener() {
         @Override
         public void onRest(List<StationBean> stations) {
@@ -259,4 +270,50 @@ public class MainActivity extends Activity implements LocationSource,
             }
         }
     };
+
+    AMap.OnMarkerClickListener onMarkerClickListener = new AMap.OnMarkerClickListener() {
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+            DialogMaker dialogMaker = new DialogMaker(MainActivity.this, marker, onMakerSetListener);
+            dialogMaker.open();
+            return false;
+
+        }
+    };
+
+    DialogMaker.OnMakerSetListener onMakerSetListener = new DialogMaker.OnMakerSetListener() {
+        @Override
+        public void onStartPoint(Marker marker) {
+            Log.e("OnMakerSetListener", "起点位置 : " + marker.getPosition().latitude + " : " + marker.getPosition().longitude);
+            startPoint = marker.getPosition();
+            startPointName = marker.getTitle();
+            if (startPointName == null){
+                startPointName = "当前位置";
+            }
+            calculateDistance();
+        }
+
+        @Override
+        public void onEndPoint(Marker marker) {
+            Log.e("OnMakerSetListener", "终点位置 : " + marker.getPosition().latitude + " : " + marker.getPosition().longitude);
+            endPoint = marker.getPosition();
+            endPointName = marker.getTitle();
+            if(endPointName == null){
+                endPointName = "当前位置";
+            }
+            calculateDistance();
+        }
+    };
+
+    private void calculateDistance(){
+        if(startPoint != null && endPoint != null){
+            AMapUtils aMapUtils = new AMapUtils();
+            float distance = aMapUtils.calculateLineDistance(startPoint,endPoint);
+            Log.e("OnMakerSetListener", "两地距离 : " + distance + " 米");
+            tv_distance.setText(startPointName + " 距离 " + endPointName + " " + distance + " 米");
+        }
+    }
+
+
+
 }
