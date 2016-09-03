@@ -194,21 +194,34 @@ public class AssetsDatabaseManager {
         String station = getStation(type);
         SQLiteDatabase db = getManager().getDatabase("route.db");
         Cursor cursor;
-        if(TextUtils.isEmpty(ci)){
-            cursor = db.rawQuery("select * from " + station + " where LAC = ? LIMIT 10",new String[]{lac});
+        if(type == 0){
+            cursor = db.rawQuery("select * from " + station + " where NID = ? AND CID = ? LIMIT 10",new String[]{lac, ci});
         }else{
-            cursor = db.rawQuery("select * from " + station + " where LAC = ? AND CID = ? LIMIT 10",new String[]{lac, ci});
+            if(TextUtils.isEmpty(ci)){
+                cursor = db.rawQuery("select * from " + station + " where LAC = ? LIMIT 10",new String[]{lac});
+            }else{
+                cursor = db.rawQuery("select * from " + station + " where LAC = ? AND CID = ? LIMIT 10",new String[]{lac, ci});
+            }
         }
         if(cursor.getCount() > 0){
             ArrayList<StationBean> stations = new ArrayList<>();
             cursor.moveToFirst();
             StationBean stationBean = new StationBean();
-            stationBean.lac = cursor.getInt(0);
-            stationBean.ci = cursor.getInt(1);
-            stationBean.name= cursor.getString(2);
-            stationBean.adr = cursor.getString(3);
-            stationBean.lng = cursor.getFloat(4);
-            stationBean.lat = cursor.getFloat(5);
+            if(type == 0){
+                stationBean.lac = cursor.getInt(0);
+                stationBean.ci = cursor.getInt(1);
+                stationBean.name= cursor.getString(3);
+                stationBean.adr = cursor.getString(4);
+                stationBean.lng = cursor.getFloat(5);
+                stationBean.lat = cursor.getFloat(6);
+            }else{
+                stationBean.lac = cursor.getInt(0);
+                stationBean.ci = cursor.getInt(1);
+                stationBean.name= cursor.getString(2);
+                stationBean.adr = cursor.getString(3);
+                stationBean.lng = cursor.getFloat(4);
+                stationBean.lat = cursor.getFloat(5);
+            }
             stations.add(stationBean);
             while (cursor.moveToNext()){
                 stationBean = new StationBean();
@@ -269,9 +282,9 @@ public class AssetsDatabaseManager {
     static private String getStation(int type){
         switch (type){
             case 0:
-                return "CMCC";
-            case 1:
                 return "CTCC";
+            case 1:
+                return "CMCC";
             case 2:
                 return "CUCC";
             default:

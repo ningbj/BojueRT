@@ -58,7 +58,7 @@ public class DialogSearch {
         img_back = (ImageView)modelDialog.findViewById(R.id.img_back);
         radio_CTCC = (RadioButton)modelDialog.findViewById(R.id.radio_CTCC);
         radio_CMCC = (RadioButton)modelDialog.findViewById(R.id.radio_CMCC);
-        radio_CUCC = (RadioButton)modelDialog.findViewById(R.id.radio_CTCC);
+        radio_CUCC = (RadioButton)modelDialog.findViewById(R.id.radio_CUCC);
         rg = (RadioGroup)modelDialog.findViewById(R.id.rg);
         et_station_name = (EditText)modelDialog.findViewById(R.id.et_station_name);
         et_station_adr = (EditText)modelDialog.findViewById(R.id.et_station_adr);
@@ -113,18 +113,14 @@ public class DialogSearch {
                 adr = et_station_adr.getText().toString();
             }
         }else{
-            if(et_station_code_lac.getText().toString().length() > 4){
-                codeLAC = et_station_code_lac.getText().toString();
-                codeCI = et_station_code_ci.getText().toString();
-                List<StationBean> list = AssetsDatabaseManager.selectByCode(type, codeLAC, codeCI);
-                if(list != null){
-                    onSearchListener.onRest(list);
-                    modelDialog.dismiss();
-                }else{
-                    Toast.makeText(context, "查找不到此基站信息", Toast.LENGTH_SHORT).show();
-                }
+            codeLAC = et_station_code_lac.getText().toString();
+            codeCI = et_station_code_ci.getText().toString();
+            List<StationBean> list = AssetsDatabaseManager.selectByCode(type, codeLAC, codeCI);
+            if(list != null){
+                onSearchListener.onRest(list);
+                modelDialog.dismiss();
             }else{
-                Toast.makeText(context, "基站代码不能小于5位", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "查找不到此基站信息", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -165,12 +161,13 @@ public class DialogSearch {
                 isValidate = false;
                 Toast.makeText(context,"请完善查询条件",Toast.LENGTH_SHORT).show();
             }else{
-                if(codeLAC.length() == 5 && codeCI.length() == 5){
-                    isValidate = true;
-                }else{
-                    Toast.makeText(context,"基站必须均为5位数",Toast.LENGTH_SHORT).show();
-                    isValidate = false;
-                }
+//                if(codeLAC.length() == 5 && codeCI.length() == 5){
+//                    isValidate = true;
+//                }else{
+//                    Toast.makeText(context,"基站必须均为5位数",Toast.LENGTH_SHORT).show();
+//                    isValidate = false;
+//                }
+                isValidate = true;
             }
         }else{
             if(TextUtils.isEmpty(name) && TextUtils.isEmpty(adr)){
@@ -186,9 +183,9 @@ public class DialogSearch {
     RadioGroup.OnCheckedChangeListener onCheckedChangeListener = new RadioGroup.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-            if(checkedId == radio_CMCC.getId()){
+            if(checkedId == radio_CTCC.getId()){
                 type = 0;
-            }else if(checkedId == radio_CTCC.getId()){
+            }else if(checkedId == radio_CMCC.getId()){
                 type = 1;
             }else{
                 type = 2;

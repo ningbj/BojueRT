@@ -72,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:text="电信"
                 android:textSize="16sp"
-                android:id="@+id/radio_CMCC"
+                android:id="@+id/radio_CTCC"
                 android:checked="true"
                 />
             <RadioButton
@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:text="移动"
                 android:textSize="16sp"
-                android:id="@+id/radio_CTCC"
+                android:id="@+id/radio_CMCC"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 />
             <RadioButton

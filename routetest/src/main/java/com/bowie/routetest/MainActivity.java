@@ -29,6 +29,7 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.bowie.routetest.db.StationBean;
+import com.bowie.routetest.utils.CellUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,14 +55,35 @@ public class MainActivity extends Activity implements LocationSource,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        lv = (ListView)findViewById(R.id.lv_station);
-        tv_distance = (TextView)findViewById(R.id.tv_distance);
         //获取地图控件引用
         mMapView = (MapView) findViewById(R.id.map);
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，实现地图生命周期管理
         mMapView.onCreate(savedInstanceState);
+        initActivity();
+    }
+
+    private void initActivity(){
+        findView();
         getLocation();
         location();
+        getCell();
+    }
+
+    private void findView(){
+        lv = (ListView)findViewById(R.id.lv_station);
+        tv_distance = (TextView)findViewById(R.id.tv_distance);
+    }
+
+    private void getCell(){
+        CellUtil cellUtil = new CellUtil(this);
+        try {
+            CellUtil.SCell sCell = cellUtil.getCellInfo();
+            Log.e("SCELL", "LAC : " + sCell.LAC + "   CID : " + sCell.CID);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("Exception", e.toString());
+        }
+
     }
 
 
