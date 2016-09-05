@@ -6,6 +6,7 @@
     >
 
     <ImageView
+        android:id="@+id/img_sign"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/redpoint"/>
@@ -16,7 +17,7 @@
         android:textColor="@color/colorPrimary"
         android:id="@+id/tv_marker"
         android:textSize="14sp"
-        android:text="111111"
+        android:text=""
         />
 
 </LinearLayout>

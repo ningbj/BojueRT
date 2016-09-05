@@ -9,6 +9,6 @@ public class StationBean {
     public int ci;
     public String name;
     public String adr;
-    public Float lng;
-    public Float lat;
+    public double lng;
+    public double lat;
 }

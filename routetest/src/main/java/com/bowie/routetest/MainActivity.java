@@ -5,12 +5,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -22,9 +24,12 @@ import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
+import com.amap.api.maps.CoordinateConverter;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
+import com.amap.api.maps.model.Circle;
+import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
@@ -66,7 +71,6 @@ public class MainActivity extends Activity implements LocationSource,
         findView();
         getLocation();
         location();
-        getCell();
     }
 
     private void findView(){
@@ -103,7 +107,7 @@ public class MainActivity extends Activity implements LocationSource,
         //设置是否允许模拟位置,默认为false，不允许模拟位置
         mLocationOption.setMockEnable(false);
         //设置定位间隔,单位毫秒,默认为2000ms
-        mLocationOption.setInterval(100000);
+        mLocationOption.setInterval(60000);
         //给定位客户端对象设置定位参数
         mLocationClient.setLocationOption(mLocationOption);
         //启动定位
@@ -117,7 +121,48 @@ public class MainActivity extends Activity implements LocationSource,
         aMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
         // 设置定位的类型为定位模式，参见类AMap。
         aMap.setMyLocationType(AMap.LOCATION_TYPE_MAP_FOLLOW);
-        aMap.moveCamera(CameraUpdateFactory.zoomBy(3));
+        aMap.moveCamera(CameraUpdateFactory.zoomBy(12));
+    }
+
+    /**
+     * 绘制当前所属基站
+     * */
+    private void markerCurrentStation(LatLng myposition){
+        CellUtil cellUtil = new CellUtil(this);
+        StationBean stationBean = cellUtil.getCurrwntStation();
+        View view = View.inflate(this,R.layout.item_marker, null);
+        TextView tv_marker = (TextView)view.findViewById(R.id.tv_marker);
+        ImageView img_sign = (ImageView)view.findViewById(R.id.img_sign);
+        img_sign.setImageDrawable(getResources().getDrawable(R.mipmap.ic_training_32dp));
+        tv_marker.setText("当前基站");
+        Bitmap bitmap = convertViewToBitmap(view);
+        LatLng latlng = LatLngUtil.transformFromWGSToGCJ(new LatLng(stationBean.lat, stationBean.lng));
+
+        MarkerOptions makeerOption = new MarkerOptions();
+        makeerOption.position(latlng);
+        makeerOption.title("当前基站：" + stationBean.name);
+        makeerOption.snippet(stationBean.adr);
+        makeerOption.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
+        aMap.addMarker(makeerOption);
+        aMap.setOnMarkerClickListener(onMarkerClickListener);
+        LatLng latLng = new LatLng(stationBean.lat, stationBean.lng);
+        drawCirle(myposition, latLng);
+    }
+
+    private void drawCirle(LatLng myposition, LatLng currentStation){
+        float distance = calculateDistance(myposition, currentStation);
+        CircleOptions circleOption = new CircleOptions();
+        circleOption.center(currentStation);
+        circleOption.fillColor(R.color.colorBlack50);
+        circleOption.radius(distance);
+        aMap.addCircle(circleOption);
+    }
+
+    private LatLng latLngConvert(LatLng latLng){
+        CoordinateConverter converter  = new CoordinateConverter(this);
+        converter.from(CoordinateConverter.CoordType.GPS);
+        converter.coord(latLng);
+        return converter.convert();
     }
 
     private void mapMaker(List<StationBean> list) {
@@ -126,9 +171,9 @@ public class MainActivity extends Activity implements LocationSource,
         for (int i = 0; i < list.size();i++){
             View view = View.inflate(this,R.layout.item_marker, null);
             TextView tv_marker = (TextView)view.findViewById(R.id.tv_marker);
-            tv_marker.setText(list.get(i).name);
+//            tv_marker.setText(list.get(i).name);
             Bitmap bitmap = convertViewToBitmap(view);
-            LatLng latlng = new LatLng(list.get(i).lat, list.get(i).lng);
+            LatLng latlng = LatLngUtil.transformFromWGSToGCJ(new LatLng(list.get(i).lat, list.get(i).lng));
             MarkerOptions makeerOption = new MarkerOptions();
             makeerOption.position(latlng);
             makeerOption.title(list.get(i).name);
@@ -221,7 +266,9 @@ public class MainActivity extends Activity implements LocationSource,
                 amapLocation.getAdCode();//地区编码
                 Log.e("location", amapLocation.toStr());
                 mListener.onLocationChanged(amapLocation);
-                aMap.moveCamera(CameraUpdateFactory.zoomBy(6));
+                aMap.moveCamera(CameraUpdateFactory.zoomBy(12));
+                LatLng myposition = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+                markerCurrentStation(myposition);
             } else {
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
                 Log.e("AmapError", "location Error, ErrCode:"
@@ -253,7 +300,9 @@ public class MainActivity extends Activity implements LocationSource,
 
     public void actionClear(View view){
         aMap.clear(true);
-        adapter.clear();
+        if(adapter != null){
+            adapter.clear();
+        }
     }
 
     DialogSearch.OnSearchListener onSearchListener = new DialogSearch.OnSearchListener() {
@@ -312,7 +361,7 @@ public class MainActivity extends Activity implements LocationSource,
             if (startPointName == null){
                 startPointName = "当前位置";
             }
-            calculateDistance();
+            showDistance();
         }
 
         @Override
@@ -323,17 +372,22 @@ public class MainActivity extends Activity implements LocationSource,
             if(endPointName == null){
                 endPointName = "当前位置";
             }
-            calculateDistance();
+            showDistance();
         }
     };
 
-    private void calculateDistance(){
+    private void showDistance(){
         if(startPoint != null && endPoint != null){
-            AMapUtils aMapUtils = new AMapUtils();
-            float distance = aMapUtils.calculateLineDistance(startPoint,endPoint);
+            float distance = calculateDistance(startPoint,endPoint);
             Log.e("OnMakerSetListener", "两地距离 : " + distance + " 米");
             tv_distance.setText(startPointName + " 距离 " + endPointName + " " + distance + " 米");
         }
+    }
+
+    private float calculateDistance(LatLng startPoint, LatLng endPoint){
+        AMapUtils aMapUtils = new AMapUtils();
+        float distance = aMapUtils.calculateLineDistance(startPoint,endPoint);
+        return distance;
     }
 
 

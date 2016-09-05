@@ -4,6 +4,11 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 
+import com.bowie.routetest.db.AssetsDatabaseManager;
+import com.bowie.routetest.db.StationBean;
+
+import java.util.List;
+
 /**
  * Created by ningbj on 2016/9/3.
  */
@@ -12,6 +17,22 @@ public class CellUtil {
     private Context context;
     public CellUtil(Context context){
         this.context = context;
+    }
+
+    public StationBean getCurrwntStation(){
+        int type = getSimOperatorInfo();
+        try {
+            SCell sCell = getCellInfo();
+            List<StationBean> list = AssetsDatabaseManager.selectByCode(type,sCell.LAC + "",sCell.CID + "");
+            if(list != null){
+                return list.get(0);
+            }else {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     /**
      * 获取基站信息
@@ -39,7 +60,6 @@ public class CellUtil {
         cell.LAC = lac;
         cell.CID = cid;
         return cell;
-
     }
 
 
@@ -50,6 +70,37 @@ public class CellUtil {
         public int LAC;
         public int CID;
     }
+
+    public int getSimOperatorInfo()
+    {
+        TelephonyManager telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String operatorString = telephonyManager.getSimOperator();
+
+        if(operatorString == null)
+        {
+            return -1;
+        }
+
+        if(operatorString.equals("46000") || operatorString.equals("46002"))
+        {
+            //中国移动
+            return 1;
+        }
+        else if(operatorString.equals("46001"))
+        {
+            //中国联通
+            return 2;
+        }
+        else if(operatorString.equals("46003"))
+        {
+            //中国电信
+            return 0;
+        }
+
+        //error
+        return -1;
+    }
+
 
 
 }

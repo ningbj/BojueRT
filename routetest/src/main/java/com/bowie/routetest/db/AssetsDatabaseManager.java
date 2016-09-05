@@ -224,13 +224,21 @@ public class AssetsDatabaseManager {
             }
             stations.add(stationBean);
             while (cursor.moveToNext()){
-                stationBean = new StationBean();
-                stationBean.lac = cursor.getInt(0);
-                stationBean.ci = cursor.getInt(1);
-                stationBean.name= cursor.getString(2);
-                stationBean.adr = cursor.getString(3);
-                stationBean.lng = cursor.getFloat(4);
-                stationBean.lat = cursor.getFloat(5);
+                if(type == 0){
+                    stationBean.lac = cursor.getInt(0);
+                    stationBean.ci = cursor.getInt(1);
+                    stationBean.name= cursor.getString(3);
+                    stationBean.adr = cursor.getString(4);
+                    stationBean.lng = cursor.getFloat(5);
+                    stationBean.lat = cursor.getFloat(6);
+                }else{
+                    stationBean.lac = cursor.getInt(0);
+                    stationBean.ci = cursor.getInt(1);
+                    stationBean.name= cursor.getString(2);
+                    stationBean.adr = cursor.getString(3);
+                    stationBean.lng = cursor.getFloat(4);
+                    stationBean.lat = cursor.getFloat(5);
+                }
                 stations.add(stationBean);
             }
             return stations;
@@ -255,21 +263,39 @@ public class AssetsDatabaseManager {
             ArrayList<StationBean> stations = new ArrayList<>();
             cursor.moveToFirst();
             StationBean stationBean = new StationBean();
-            stationBean.lac = cursor.getInt(0);
-            stationBean.ci = cursor.getInt(1);
-            stationBean.name= cursor.getString(2);
-            stationBean.adr = cursor.getString(3);
-            stationBean.lng = cursor.getFloat(4);
-            stationBean.lat = cursor.getFloat(5);
-            stations.add(stationBean);
-            while (cursor.moveToNext()){
-                stationBean = new StationBean();
+            if(type == 0){
+                stationBean.lac = cursor.getInt(0);
+                stationBean.ci = cursor.getInt(1);
+                stationBean.name= cursor.getString(3);
+                stationBean.adr = cursor.getString(4);
+                stationBean.lng = cursor.getFloat(5);
+                stationBean.lat = cursor.getFloat(6);
+            }else{
                 stationBean.lac = cursor.getInt(0);
                 stationBean.ci = cursor.getInt(1);
                 stationBean.name= cursor.getString(2);
                 stationBean.adr = cursor.getString(3);
                 stationBean.lng = cursor.getFloat(4);
                 stationBean.lat = cursor.getFloat(5);
+            }
+            stations.add(stationBean);
+            while (cursor.moveToNext()){
+                stationBean = new StationBean();
+                if(type == 0){
+                    stationBean.lac = cursor.getInt(0);
+                    stationBean.ci = cursor.getInt(1);
+                    stationBean.name= cursor.getString(3);
+                    stationBean.adr = cursor.getString(4);
+                    stationBean.lng = cursor.getFloat(5);
+                    stationBean.lat = cursor.getFloat(6);
+                }else{
+                    stationBean.lac = cursor.getInt(0);
+                    stationBean.ci = cursor.getInt(1);
+                    stationBean.name= cursor.getString(2);
+                    stationBean.adr = cursor.getString(3);
+                    stationBean.lng = cursor.getFloat(4);
+                    stationBean.lat = cursor.getFloat(5);
+                }
                 stations.add(stationBean);
             }
             return stations;
